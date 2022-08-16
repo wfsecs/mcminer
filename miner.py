@@ -102,7 +102,7 @@ print(f'''
 ''')
 
 if ScrapeWeb:
-    WebASK = input('            Do you want to information about website? y/n: ')
+    WebASK = input('            Do you want to get information about website? y/n: ')
     if WebASK == 'y':
         r = requests.get(f'http://{ip}')
         for res in r.history:
