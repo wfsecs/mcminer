@@ -38,6 +38,7 @@ print(f'''
     ''')
 
 ip = input('            IP: ')
+
 print('')
 print('')
 
@@ -50,12 +51,13 @@ PORTS = {21: 'FTP',
          3389: 'RDP',
          8080: 'ALT HTTP',
          19312: 'Bedrock',
-         25565: 'MCServer'}
+         25565: 'JavaServer'}
+
 
 for port in PORTS:
-    SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    SOCKET.settimeout(2)  # Terminate connection if no response after 3 seconds
-    result = SOCKET.connect_ex((ip, port))
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(2)  # Terminate connection if no response after 3 seconds
+    result = s.connect_ex((ip, port))
 
     if result == 0:
         if port == 21:
@@ -65,11 +67,11 @@ for port in PORTS:
         if port == 80:
             ScrapeWeb = True
         print(f'{Fore.LG}       [+]{Fore.W} Port {port} is open on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
-        SOCKET.close()
+        s.close()
     else:
-        print(
-            f'{Fore.LR}       [-]{Fore.W} Port {port} is closed on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
-        SOCKET.close()
+        print(f'{Fore.LR}       [-]{Fore.W} Port {port} is closed on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
+        s.close()
+
 
 resp = requests.get(f'https://api.mcsrvstat.us/2/{ip}')  # Query the server status API
 print('')
@@ -129,8 +131,8 @@ if ScrapeWeb:
             print(f'            {Fore.LB}[{r.status_code}]{Fore.W} Redirected to{Fore.LWEX} {res.url}')
         d = requests.head(f'http://{ip}', headers=user_agent)
         print(f'''
-            {Fore.LB}Server:{Fore.W} {d.headers["server"]}
-            {Fore.LB}Content type:{Fore.W} {d.headers["content-type"]}
+                {Fore.LB}Server:{Fore.W} {d.headers["server"]}
+                {Fore.LB}Content type:{Fore.W} {d.headers["content-type"]}
         ''')
         print('')
 
@@ -155,7 +157,7 @@ if TryFTP:
 
 if TrySSH:
     print('')
-    SSHASK = input('            Do you want to Wordlist attack on SSH? y/n: ')
+    SSHASK = input('            Do you want to Wordlist attack and OS Detect SSH? y/n: ')
     if SSHASK == 'y':
         the_proto = 'ssh'
         ssh_username_wordlist = input('             Username Wordlist: ')
@@ -165,4 +167,3 @@ if TrySSH:
     else:
         print('''               Ok.
                     ''')
-        
