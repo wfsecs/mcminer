@@ -17,11 +17,12 @@ Fore.LWEX = Fore.LIGHTWHITE_EX
 
 init()
 
-folders_and_files = {'database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'login/', 'sql/',
+folders_and_files = ['database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'login/', 'sql/',
                      'robots.txt', 'credentials/', 'secret/', 'videos/', 'images/', 'js/', 'scripts/', 'style/',
                      'Login/',
                      'Register/', 'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/',
-                     'minecraft/', 'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/', 'admin/'}
+                     'minecraft/', 'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/',
+                     'admin/', 'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/']
 
 TryFTP = False
 TrySSH = False
@@ -108,31 +109,31 @@ print(f'''
 ''')
 
 
-def fuzz():
+def fuzz(dir):
     global fuzz_url, r, meaning, color
-    for dir in folders_and_files:
-        fuzz_url = f'http://{ip}/{dir}'
-        r = requests.get(fuzz_url, headers=user_agent)
-        status = r.status_code
-        if status == 200:
-            meaning = '[OK]'
-            color = Fore.LIGHTGREEN_EX
-        elif status == 403:
-            meaning = '[Forbidden]'
-            color = Fore.LIGHTRED_EX
-        elif status == 404:
-            meaning = '[Not Found]'
-            color = Fore.LIGHTRED_EX
-        elif status == 429:
-            meaning = '[Too Many Requests]'
-            color = Fore.LIGHTYELLOW_EX
-        print(f'            {color}[{status}] {meaning} {Fore.W} {fuzz_url}')
+    fuzz_url = f'http://{ip}/{dir}'
+    r = requests.get(fuzz_url, headers=user_agent)
+    status = r.status_code
+    if status == 200:
+        meaning = '[OK]'
+        color = Fore.LIGHTGREEN_EX
+    elif status == 403:
+        meaning = '[Forbidden]'
+        color = Fore.LIGHTRED_EX
+    elif status == 404:
+        meaning = '[Not Found]'
+        color = Fore.LIGHTRED_EX
+    elif status == 429:
+        meaning = '[Too Many Requests]'
+        color = Fore.LIGHTYELLOW_EX
+    print(f'            {color}[{status}] {meaning} {Fore.W} {fuzz_url}')
 
 
 def threads_thing():
-    fuzzThread = threading.Thread(target=fuzz)  # Starts the fuzzing thread
-    time.sleep(0.2)
-    fuzzThread.start()
+    for dir in folders_and_files:
+        fuzzThread = threading.Thread(target=fuzz, args=(dir,), daemon=True)  # Starts the fuzzing thread
+        time.sleep(1)
+        fuzzThread.start()
 
 
 if ScrapeWeb:
