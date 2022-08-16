@@ -157,7 +157,7 @@ if TryFTP:
 
 if TrySSH:
     print('')
-    SSHASK = input('            Do you want to Wordlist attack and OS Detect SSH? y/n: ')
+    SSHASK = input('             Do you want to Wordlist attack on SSH? y/n: ')
     if SSHASK == 'y':
         the_proto = 'ssh'
         ssh_username_wordlist = input('             Username Wordlist: ')
