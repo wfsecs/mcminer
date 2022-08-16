@@ -2,6 +2,8 @@ import socket
 from colorama import Fore, init
 import requests
 import os
+import threading
+import time
 
 Fore.LR = Fore.LIGHTRED_EX
 Fore.LG = Fore.LIGHTGREEN_EX
@@ -14,6 +16,12 @@ Fore.LBEX = Fore.LIGHTBLACK_EX
 Fore.LWEX = Fore.LIGHTWHITE_EX
 
 init()
+
+folders_and_files = {'database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'login/', 'sql/',
+                     'robots.txt', 'credentials/', 'secret/', 'videos/', 'images/', 'js/', 'scripts/', 'style/',
+                     'Login/',
+                     'Register/', 'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/',
+                     'minecraft/', 'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/', 'admin/'}
 
 TryFTP = False
 TrySSH = False
@@ -38,7 +46,6 @@ server_ip = socket.gethostbyname(ip)
 
 print('')
 print('')
-
 
 global proto, s
 ports = [21, 22, 23, 53, 80, 443, 3389, 8080, 19312, 25565]
@@ -80,7 +87,6 @@ for x in ports:
         print(f'{Fore.LR}       [-]{Fore.W} Port {x} is closed on [{ip}] {Fore.YELLOW}[{x}/{proto}]{Fore.W}')
         s.close()
 
-
 theurl = f'https://api.mcsrvstat.us/2/{ip}'
 r = requests.get(theurl)
 data = r.text
@@ -101,20 +107,60 @@ print(f'''
             {Fore.RED}SRV:{Fore.R} {SRV}
 ''')
 
-if ScrapeWeb:
-    WebASK = input('            Do you want to get information about website? y/n: ')
-    if WebASK == 'y':
-        r = requests.get(f'http://{ip}')
-        for res in r.history:
-            print(f'               {Fore.LB}[{r.status_code}]{Fore.W} Redirected to{Fore.LWEX} {res.url}')
-    else:
-        print('               Ok.')
-        pass
 
+def fuzz():
+    global fuzz_url, r, meaning, color
+    for dir in folders_and_files:
+        fuzz_url = f'http://{ip}/{dir}'
+        r = requests.get(fuzz_url, headers=user_agent)
+        status = r.status_code
+        if status == 200:
+            meaning = '[OK]'
+            color = Fore.LIGHTGREEN_EX
+        elif status == 403:
+            meaning = '[Forbidden]'
+            color = Fore.LIGHTRED_EX
+        elif status == 404:
+            meaning = '[Not Found]'
+            color = Fore.LIGHTRED_EX
+        elif status == 429:
+            meaning = '[Too Many Requests]'
+            color = Fore.LIGHTYELLOW_EX
+        print(f'            {color}[{status}] {meaning} {Fore.W} {fuzz_url}')
+
+
+def threads_thing():
+    fuzzThread = threading.Thread(target=fuzz)  # Starts the fuzzing thread
+    time.sleep(0.2)
+    fuzzThread.start()
+
+
+if ScrapeWeb:
+    WebASK = input('            Do you want to information about website? y/n: ')
+    if WebASK == 'y':
+        user_agent = {
+            'User-agent': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060313 Debian/1.5.dfsg+1.5.0.1-4 Firefox/1.5.0.1'}
+        r = requests.get(f'http://{ip}', headers=user_agent)
+        print('')
+        for res in r.history:
+            print(f'            {Fore.LB}[{r.status_code}]{Fore.W} Redirected to{Fore.LWEX} {res.url}')
+        d = requests.head(f'http://{ip}', headers=user_agent)
+        print(f'''
+            {Fore.LB}Server:{Fore.W} {d.headers["server"]}
+            {Fore.LB}Content type:{Fore.W} {d.headers["content-type"]}
+        ''')
+        print('')
+        fuzzask = input('            Do you want to fuzz the site? y/n: ')
+        if fuzzask == 'y':
+            threads_thing()
+
+        else:
+            print('               Ok.')
+            pass
 
 if TryFTP:
     print('')
-    FTPASK = input('            Do you want to Wordlist attack on FTP? y/n: ')
+    FTPASK = input('            Do you want to Wordlist attack the FTP? y/n: ')
     if FTPASK == 'y':
         the_proto = 'ftp'
         ftp_username_wordlist = input('             Username Wordlist: ')
@@ -126,10 +172,9 @@ if TryFTP:
                 ''')
         pass
 
-
 if TrySSH:
     print('')
-    SSHASK = input('            Do you want to Wordlist attack on SSH? y/n: ')
+    SSHASK = input('            Do you want to Wordlist attack the SSH? y/n: ')
     if SSHASK == 'y':
         the_proto = 'ssh'
         ssh_username_wordlist = input('             Username Wordlist: ')
