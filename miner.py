@@ -442,5 +442,5 @@ ddos_ask = input('            Do you want to send packets? y/n: ')
 if ddos_ask == 'y':
     ddos_threading()
 else:
-    print('               Ok.')
+    print('               Ok.') #.
     print('')
