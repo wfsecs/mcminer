@@ -1,3 +1,4 @@
 colorama
-sockets
-requests
+socket
+scapy
+mechanize
