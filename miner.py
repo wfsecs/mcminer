@@ -273,7 +273,7 @@ def fuzz(directory):
 def threads_handler():
     for directory in dirs:
         fuzz_thread = threading.Thread(target=fuzz, args=(directory,), daemon=True)  # Starts the fuzzing thread
-        time.sleep(0.5)
+        time.sleep(0.3)
         fuzz_thread.start()
 
 
@@ -329,6 +329,7 @@ if SSH:
         print('''               Ok.
                     ''')
 
+time.sleep(0.4)
 ddos_ask = input('            Do you want to send packets? y/n: ')
 if ddos_ask == 'y':
     ddos_threading()
