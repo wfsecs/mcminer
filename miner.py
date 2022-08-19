@@ -52,10 +52,15 @@ PORTS = {21: 'FTP',
          53: 'DNS',
          80: 'HTTP',
          443: 'HTTPS',
+         1080: 'SOCKS',
+         1433: 'SQL',
          3389: 'RDP',
          8080: 'ALT HTTP',
-         19312: 'Bedrock',
-         25565: 'JavaServer'}
+         8123: 'Dynmap Plugin',
+         19132: 'Bedrock',
+         19133: 'ALT Bedrock',
+         25565: 'JavaServer',
+         25575: 'RCON'}
 
 
 def syn_flood(dst_ip: str, dst_port: int, counter: int):
@@ -79,7 +84,7 @@ def ddos_threading():
     dst_ip = input("\n               Target IP: ")
     dst_port = int(input("               Target Port: "))
 
-    thread_count = max(int(counter ** (1. / 4)), 10) #thread count is root 4 of packet count, maxed at 10
+    thread_count = min(int(counter ** (1. / 4)), 10) #thread count is root 4 of packet count, maxed at 10
     packets_per_thread = int(counter / thread_count)
 
     print("               Packets are sending...")
