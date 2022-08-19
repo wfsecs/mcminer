@@ -25,10 +25,10 @@ init()
 dirs = ['database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'login/', 'sql/', 'robots.txt',
         'credentials/', 'secret/', 'videos/', 'images/', 'js/', 'scripts/', 'style/', 'Login/', 'Register/',
         'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/', 'minecraft/',
-        'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/', 'admin/',
-        'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/']
+        'rules/', 'vote/', 'search/', 'realms/', 'about/', 'Account/', '.htaccess', 'data/', 'logins/', 'admin/',
+        'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/', 'Useless/', 'account/']
 
-login_dirs = ['index.html', 'index.php', 'index.htm']
+files = ['index.html', 'index.php', 'index.htm', 'register.php', 'Register.php']
 
 FTP = False
 SSH = False
@@ -136,22 +136,22 @@ def fuzz(directory):
     if status == 200:
         meaning = '[OK]'
         color = Fore.LIGHTGREEN_EX
-        if directory == 'login/':
+        if directory == 'register/':
             ask_spam = input(f'             Do you want to find more about "{directory}"? y/n: ')
             if ask_spam == 'y':
 
-                for dir in login_dirs:
-                    login_fuzz_url = f'http://{ip}/login/{dir}'
-                    login_status = requests.get(str(login_fuzz_url), headers=user_agent).status_code
+                for dir in files:
+                    register_fuzz_url = f'http://{ip}/login/{dir}'
+                    register_status = requests.get(str(register_fuzz_url), headers=user_agent).status_code
 
-                    if login_status == 200:
+                    if register_status == 200:
                         meaning = '[OK]'
                         color = Fore.LIGHTGREEN_EX
-                        print(f'            {color}[{login_status}] {meaning} {Fore.W} {login_fuzz_url}')
+                        print(f'            {color}[{register_status}] {meaning} {Fore.W} {register_fuzz_url}')
                         ask_account_creation = input('             Do you want to spam create accounts? y/n: ')
                         if ask_account_creation == 'y':
                             account_count = input('             How many accounts to create?: ')
-                            url = login_fuzz_url
+                            url = register_fuzz_url
 
                             for _ in range(int(account_count)):
                                 letters = string.ascii_lowercase
@@ -166,16 +166,16 @@ def fuzz(directory):
 
                                 br.select_form(nr=0)
 
-                                emailf = br.form.find_control(id="email")
+                                emailf = br.form.find_control(name="email")
                                 emailf.value = email
 
-                                usernamef = br.form.find_control(id="username")
+                                usernamef = br.form.find_control(name="username")
                                 usernamef.value = username
 
-                                passwordf = br.form.find_control(id="password")
+                                passwordf = br.form.find_control(name="password")
                                 passwordf.value = password
 
-                                confirmPasswordf = br.form.find_control(id="confirmPassword")
+                                confirmPasswordf = br.form.find_control(name="confirmPassword")
                                 confirmPasswordf.value = password
 
                                 br.submit()
@@ -183,32 +183,32 @@ def fuzz(directory):
                                 nexturl = br.geturl()
                                 print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
 
-                    elif login_status == 404:
+                    elif register_status == 404:
                         meaning = '[Not Found]'
                         color = Fore.LIGHTGREEN_EX
-                        print(f'            {color}[{login_status}] {meaning} {Fore.W} {login_fuzz_url}')
+                        print(f'            {color}[{register_status}] {meaning} {Fore.W} {register_fuzz_url}')
 
                     else:
                         meaning = '[Unknown]'
                         color = Fore.LIGHTYELLOW_EX
-                        print(f'            {color}[{login_status}] {meaning} {Fore.W} {login_fuzz_url}')
+                        print(f'            {color}[{register_status}] {meaning} {Fore.W} {register_fuzz_url}')
 
-        elif directory == 'Login/':
+        elif directory == 'Register/':
             ask_spam2 = input(f'             Do you want to find more about "{directory}"? y/n: ')
             if ask_spam2 == 'y':
 
-                for dir in login_dirs:
-                    login_fuzz_url2 = f'http://{ip}/login/{dir}'
-                    login_status2 = requests.get(str(login_fuzz_url2), headers=user_agent).status_code
+                for dir in files:
+                    register_fuzz_url2 = f'http://{ip}/login/{dir}'
+                    register_status2 = requests.get(str(register_fuzz_url2), headers=user_agent).status_code
 
-                    if login_status2 == 200:
+                    if register_status2 == 200:
                         meaning = '[OK]'
                         color = Fore.LIGHTGREEN_EX
-                        print(f'            {color}[{login_status2}] {meaning} {Fore.W} {login_fuzz_url2}')
+                        print(f'            {color}[{register_status2}] {meaning} {Fore.W} {register_fuzz_url2}')
                         ask_account_creation = input('             Do you want to spam create accounts? y/n: ')
                         if ask_account_creation == 'y':
                             account_count = input('             How many accounts to create?: ')
-                            url = login_fuzz_url2
+                            url = register_fuzz_url2
 
                             for _ in range(int(account_count)):
                                 letters = string.ascii_lowercase
@@ -223,16 +223,16 @@ def fuzz(directory):
 
                                 br.select_form(nr=0)
 
-                                emailf = br.form.find_control(id="email")
+                                emailf = br.form.find_control(name="email")
                                 emailf.value = email
 
-                                usernamef = br.form.find_control(id="username")
+                                usernamef = br.form.find_control(name="username")
                                 usernamef.value = username
 
-                                passwordf = br.form.find_control(id="password")
+                                passwordf = br.form.find_control(name="password")
                                 passwordf.value = password
 
-                                confirmPasswordf = br.form.find_control(id="confirmPassword")
+                                confirmPasswordf = br.form.find_control(name="confirmPassword")
                                 confirmPasswordf.value = password
 
                                 br.submit()
@@ -240,15 +240,129 @@ def fuzz(directory):
                                 nexturl = br.geturl()
                                 print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
 
-                    elif login_status2 == 404:
+                    elif register_status2 == 404:
                         meaning = '[Not Found]'
                         color = Fore.LIGHTGREEN_EX
-                        print(f'            {color}[{login_status2}] {meaning} {Fore.W} {login_fuzz_url2}')
+                        print(f'            {color}[{register_status2}] {meaning} {Fore.W} {register_fuzz_url2}')
 
                     else:
                         meaning = '[Unknown]'
                         color = Fore.LIGHTYELLOW_EX
-                        print(f'            {color}[{login_status2}] {meaning} {Fore.W} {login_fuzz_url2}')
+                        print(f'            {color}[{register_status2}] {meaning} {Fore.W} {register_fuzz_url2}')
+
+        elif directory == 'Account/':
+            ask_spam3 = input(f'             Do you want to find more about "{directory}"? y/n: ')
+            if ask_spam3 == 'y':
+
+                for dir in files:
+                    account_fuzz_url = f'http://{ip}/login/{dir}'
+                    account_status = requests.get(str(account_fuzz_url), headers=user_agent).status_code
+
+                    if account_status == 200:
+                        meaning = '[OK]'
+                        color = Fore.LIGHTGREEN_EX
+                        print(f'            {color}[{account_status}] {meaning} {Fore.W} {account_fuzz_url}')
+                        ask_account_creation = input('             Do you want to spam create accounts? y/n: ')
+                        if ask_account_creation == 'y':
+                            account_count = input('             How many accounts to create?: ')
+                            url = account_fuzz_url
+
+                            for _ in range(int(account_count)):
+                                letters = string.ascii_lowercase
+                                username = ''.join(random.choice(letters) for i in range(10))
+                                email = ''.join(random.choice(letters) for i in range(10)).join('@gmail.com')
+                                password = 'Fuck_you_lol!'
+                                br = mechanize.Browser()
+                                br.addheaders = [('User-agent',
+                                                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')]
+                                br.set_handle_robots(False)
+                                br.open(url)
+
+                                br.select_form(nr=0)
+
+                                emailf = br.form.find_control(name="email")
+                                emailf.value = email
+
+                                usernamef = br.form.find_control(name="username")
+                                usernamef.value = username
+
+                                passwordf = br.form.find_control(name="password")
+                                passwordf.value = password
+
+                                confirmPasswordf = br.form.find_control(name="confirmPassword")
+                                confirmPasswordf.value = password
+
+                                br.submit()
+                                time.sleep(1)
+                                nexturl = br.geturl()
+                                print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
+
+                    elif account_status == 404:
+                        meaning = '[Not Found]'
+                        color = Fore.LIGHTGREEN_EX
+                        print(f'            {color}[{account_status}] {meaning} {Fore.W} {account_status}')
+
+                    else:
+                        meaning = '[Unknown]'
+                        color = Fore.LIGHTYELLOW_EX
+                        print(f'            {color}[{account_status}] {meaning} {Fore.W} {account_status}')
+
+        elif directory == 'account/':
+            ask_spam4 = input(f'             Do you want to find more about "{directory}"? y/n: ')
+            if ask_spam4 == 'y':
+
+                for dir in files:
+                    account_fuzz_url2 = f'http://{ip}/login/{dir}'
+                    account_status2 = requests.get(str(account_fuzz_url2), headers=user_agent).status_code
+
+                    if account_status2 == 200:
+                        meaning = '[OK]'
+                        color = Fore.LIGHTGREEN_EX
+                        print(f'            {color}[{account_status2}] {meaning} {Fore.W} {account_fuzz_url2}')
+                        ask_account_creation = input('             Do you want to spam create accounts? y/n: ')
+                        if ask_account_creation == 'y':
+                            account_count = input('             How many accounts to create?: ')
+                            url = account_fuzz_url2
+
+                            for _ in range(int(account_count)):
+                                letters = string.ascii_lowercase
+                                username = ''.join(random.choice(letters) for i in range(10))
+                                email = ''.join(random.choice(letters) for i in range(10)).join('@gmail.com')
+                                password = 'Fuck_you_lol!'
+                                br = mechanize.Browser()
+                                br.addheaders = [('User-agent',
+                                                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')]
+                                br.set_handle_robots(False)
+                                br.open(url)
+
+                                br.select_form(nr=0)
+
+                                emailf = br.form.find_control(name="email")
+                                emailf.value = email
+
+                                usernamef = br.form.find_control(name="username")
+                                usernamef.value = username
+
+                                passwordf = br.form.find_control(name="password")
+                                passwordf.value = password
+
+                                confirmPasswordf = br.form.find_control(name="confirmPassword")
+                                confirmPasswordf.value = password
+
+                                br.submit()
+                                time.sleep(1)
+                                nexturl = br.geturl()
+                                print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
+
+                    elif account_status2 == 404:
+                        meaning = '[Not Found]'
+                        color = Fore.LIGHTGREEN_EX
+                        print(f'            {color}[{account_status2}] {meaning} {Fore.W} {account_status2}')
+
+                    else:
+                        meaning = '[Unknown]'
+                        color = Fore.LIGHTYELLOW_EX
+                        print(f'            {color}[{account_status2}] {meaning} {Fore.W} {account_status2}')
 
     elif status == 403:
         meaning = '[Forbidden]'
