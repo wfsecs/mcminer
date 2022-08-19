@@ -167,26 +167,29 @@ def fuzz():
 
                                     br.select_form(nr=0)
 
-                                    emailf = br.form.find_control(name="email")
+                                    emailf = br.select_form(name="email")
                                     emailf.value = email
 
-                                    usernamef = br.form.find_control(name="username")
+                                    usernamef = br.select_form(name="username")
                                     usernamef.value = username
 
-                                    passwordf = br.form.find_control(name="password")
+                                    passwordf = br.select_form(name="password")
                                     passwordf.value = password
 
-                                    confirmPasswordf = br.form.find_control(name="confirmPassword")
-                                    confirmPasswordf.value = password
+                                    passwordconf = br.select_form(name="confirmPassword")
+                                    passwordconf.value = password
 
-                                    br.submit()
+                                    resp = br.submit()
                                     time.sleep(1)
-                                    nexturl = br.geturl()
-                                    print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
+                                    if resp.geturl() == url:
+                                        print(f'             [!] Couldnt create account')
+                                    else:
+                                        nexturl = br.geturl()
+                                        print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
 
                         elif register_status == 404:
                             meaning = '[Not Found]'
-                            color = Fore.LIGHTGREEN_EX
+                            color = Fore.LIGHTRED_EX
                             print(f'            {color}[{register_status}] {meaning} {Fore.W} {register_fuzz_url}')
 
                         else:
@@ -224,26 +227,29 @@ def fuzz():
 
                                     br.select_form(nr=0)
 
-                                    emailf = br.form.find_control(name="email")
+                                    emailf = br.select_form(name="email")
                                     emailf.value = email
 
-                                    usernamef = br.form.find_control(name="username")
+                                    usernamef = br.select_form(name="username")
                                     usernamef.value = username
 
-                                    passwordf = br.form.find_control(name="password")
+                                    passwordf = br.select_form(name="password")
                                     passwordf.value = password
 
-                                    confirmPasswordf = br.form.find_control(name="confirmPassword")
-                                    confirmPasswordf.value = password
+                                    passwordconf = br.select_form(name="confirmPassword")
+                                    passwordconf.value = password
 
-                                    br.submit()
+                                    resp = br.submit()
                                     time.sleep(1)
-                                    nexturl = br.geturl()
-                                    print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
+                                    if resp.geturl() == url:
+                                        print(f'             [!] Couldnt create account')
+                                    else:
+                                        nexturl = br.geturl()
+                                        print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
 
                         elif register_status2 == 404:
                             meaning = '[Not Found]'
-                            color = Fore.LIGHTGREEN_EX
+                            color = Fore.LIGHTRED_EX
                             print(f'            {color}[{register_status2}] {meaning} {Fore.W} {register_fuzz_url2}')
 
                         else:
@@ -267,6 +273,8 @@ def fuzz():
                             if ask_account_creation == 'y':
                                 account_count = input('             How many accounts to create?: ')
                                 url = account_fuzz_url
+                                test = requests.get(url)
+                                print(test.text)
 
                                 for _ in range(int(account_count)):
                                     letters = string.ascii_lowercase
@@ -281,32 +289,35 @@ def fuzz():
 
                                     br.select_form(nr=0)
 
-                                    emailf = br.form.find_control(name="email")
+                                    emailf = br.select_form(name="email")
                                     emailf.value = email
 
-                                    usernamef = br.form.find_control(name="username")
+                                    usernamef = br.select_form(name="username")
                                     usernamef.value = username
 
-                                    passwordf = br.form.find_control(name="password")
+                                    passwordf = br.select_form(name="password")
                                     passwordf.value = password
 
-                                    confirmPasswordf = br.form.find_control(name="confirmPassword")
-                                    confirmPasswordf.value = password
+                                    passwordconf = br.select_form(name="confirmPassword")
+                                    passwordconf.value = password
 
-                                    br.submit()
+                                    resp = br.submit()
                                     time.sleep(1)
-                                    nexturl = br.geturl()
-                                    print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
+                                    if resp.geturl() == url:
+                                        print(f'             [!] Couldnt create account')
+                                    else:
+                                        nexturl = br.geturl()
+                                        print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
 
                         elif account_status == 404:
                             meaning = '[Not Found]'
-                            color = Fore.LIGHTGREEN_EX
-                            print(f'            {color}[{account_status}] {meaning} {Fore.W} {account_status}')
+                            color = Fore.LIGHTRED_EX
+                            print(f'            {color}[{account_status}] {meaning} {Fore.W} {account_fuzz_url}')
 
                         else:
                             meaning = '[Unknown]'
                             color = Fore.LIGHTYELLOW_EX
-                            print(f'            {color}[{account_status}] {meaning} {Fore.W} {account_status}')
+                            print(f'            {color}[{account_status}] {meaning} {Fore.W} {account_fuzz_url}')
 
             elif directory == 'account/':
                 ask_spam4 = input(f'             Do you want to find more about "{directory}"? y/n: ')
@@ -338,32 +349,35 @@ def fuzz():
 
                                     br.select_form(nr=0)
 
-                                    emailf = br.form.find_control(name="email")
+                                    emailf = br.select_form(name="email")
                                     emailf.value = email
 
-                                    usernamef = br.form.find_control(name="username")
+                                    usernamef = br.select_form(name="username")
                                     usernamef.value = username
 
-                                    passwordf = br.form.find_control(name="password")
+                                    passwordf = br.select_form(name="password")
                                     passwordf.value = password
 
-                                    confirmPasswordf = br.form.find_control(name="confirmPassword")
-                                    confirmPasswordf.value = password
+                                    passwordconf = br.select_form(name="confirmPassword")
+                                    passwordconf.value = password
 
-                                    br.submit()
+                                    resp = br.submit()
                                     time.sleep(1)
-                                    nexturl = br.geturl()
-                                    print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
+                                    if resp.geturl() == url:
+                                        print(f'             [!] Couldnt create account')
+                                    else:
+                                        nexturl = br.geturl()
+                                        print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
 
                         elif account_status2 == 404:
                             meaning = '[Not Found]'
-                            color = Fore.LIGHTGREEN_EX
-                            print(f'            {color}[{account_status2}] {meaning} {Fore.W} {account_status2}')
+                            color = Fore.LIGHTRED_EX
+                            print(f'            {color}[{account_status2}] {meaning} {Fore.W} {account_fuzz_url2}')
 
                         else:
                             meaning = '[Unknown]'
                             color = Fore.LIGHTYELLOW_EX
-                            print(f'            {color}[{account_status2}] {meaning} {Fore.W} {account_status2}')
+                            print(f'            {color}[{account_status2}] {meaning} {Fore.W} {account_fuzz_url2}')
 
         elif status == 403:
             meaning = '[Forbidden]'
@@ -442,5 +456,5 @@ ddos_ask = input('            Do you want to send packets? y/n: ')
 if ddos_ask == 'y':
     ddos_threading()
 else:
-    print('               Ok.') #.
+    print('               Ok.')
     print('')
